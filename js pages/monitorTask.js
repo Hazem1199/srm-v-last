@@ -12,7 +12,7 @@ async function getTasks() {
   try {
     const response = await fetch(baseUrl, { headers });
     const data = await response.json();
-    console.log(data.data);
+    // console.log(data.data);
     return data;
   } catch (error) {
     console.error(error);
@@ -60,16 +60,57 @@ function hide() {
 
 const taskPush = [];
 
-console.log(taskPush);
+// console.log(taskPush);
 
-async function displayTasks() {
+async function filterDepartments() {
+  const tasks = await getTasks();
+  console.log(tasks);
+  const uniqueDepartments = Array.from(
+    new Set(tasks.data.map((task) => task.attributes.department))
+  );
+  const departmentListItems = uniqueDepartments.map((department) => {
+    const listItem = document.createElement("li");
+    listItem.classList.add("dropdown-item");
+    listItem.textContent = department;
+    listItem.value = department;
+    listItem.addEventListener("click", () => {
+      const filteredTasks = tasks.data.filter(
+        (task) => task.attributes.department === department
+      );
+      console.log(filteredTasks);
+      displayTasks(filteredTasks);
+    });
+    return listItem;
+  });
+
+  // Creating an "All" option to display all tasks
+  const allOption = document.createElement("li");
+  allOption.classList.add("dropdown-item");
+  allOption.textContent = "All";
+  allOption.addEventListener("click", () => {
+    displayTasks(tasks.data);
+  });
+  departmentListItems.unshift(allOption); // Adding "All" option at the beginning
+
+  dropdownDepartment.append(...departmentListItems);
+
+  // Trigger click event for the default selected department (e.g., the first department)
+  if (departmentListItems.length > 0) {
+    departmentListItems[0].click(); // Clicking the first department as default
+  }
+}
+
+filterDepartments();
+
+async function displayTasks(tasks) {
   change();
+  console.log(tasks);
 
   // const reportedTasks = await getreportedTasks();
 
   // console.log(reportedTasks.data);
 
-  const tasks = await getTasks();
+  // const tasks = await getTasks();
 
   // if (!tasks || !Array.isArray(tasks)) {
   //   console.error("Invalid or undefined tasks array");
@@ -81,112 +122,112 @@ async function displayTasks() {
 
   const Dep = localStorage.getItem("myDepartment");
 
-  for (let i = 0; i < tasks.data.length; i++) {
-      let task = {
-        id: tasks.data[i].id,
-        TaskNo: tasks.data[i].attributes.task_no,
-        TaskName: `<a target="_blank" href="${tasks.data[i].attributes.task_des_link}">${tasks.data[i].attributes.task_name}</a>`,
-        Department: tasks.data[i].attributes.department,
-        Responsible: tasks.data[i].attributes.responsible,
-        TaskDesLink: tasks.data[i].attributes.task_des_link,
-        Type: tasks.data[i].attributes.type,
-        Days: tasks.data[i].attributes.days,
-        From: tasks.data[i].attributes.fromm,
-        To: tasks.data[i].attributes.too,
-        emp: tasks.data[i].attributes.emp,
-        note: tasks.data[i].attributes.note,
-        report: tasks.data[i].attributes.report,
-        task_completion: tasks.data[i].attributes.task_completion,
-      };
+  for (let i = 0; i < tasks.length; i++) {
+    let task = {
+      id: tasks[i].id,
+      TaskNo: tasks[i].attributes.task_no,
+      TaskName: `<a target="_blank" href="${tasks[i].attributes.task_des_link}">${tasks[i].attributes.task_name}</a>`,
+      Department: tasks[i].attributes.department,
+      Responsible: tasks[i].attributes.responsible,
+      TaskDesLink: tasks[i].attributes.task_des_link,
+      Type: tasks[i].attributes.type,
+      Days: tasks[i].attributes.days,
+      From: tasks[i].attributes.fromm,
+      To: tasks[i].attributes.too,
+      emp: tasks[i].attributes.emp,
+      note: tasks[i].attributes.note,
+      report: tasks[i].attributes.report,
+      task_completion: tasks[i].attributes.task_completion,
+    };
 
-      if (task.emp === null) {
-        task.emp = "";
-      }
+    if (task.emp === null) {
+      task.emp = "";
+    }
 
-      if (task.note === null) {
-        task.note = "";
-      }
+    if (task.note === null) {
+      task.note = "";
+    }
 
-      if (task.report === null) {
-        task.report = "";
-      }
+    if (task.report === null) {
+      task.report = "";
+    }
 
-      if (task) {
-        taskPush.push(task);
-      }
+    if (task) {
+      taskPush.push(task);
+    }
 
-      // console.log(typeof task.From);
+    // console.log(typeof task.From);
 
-      var newRow = document.createElement("tr");
+    var newRow = document.createElement("tr");
 
-      const formattedTime = new Date(task.From).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+    const formattedTime = new Date(task.From).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-      const formattedTime1 = new Date(task.To).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+    const formattedTime1 = new Date(task.To).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-      // const formattedLateness = new Date(task.Lateness).toLocaleTimeString("en-US", {
-      //   hour: "2-digit",
-      //   minute: "2-digit",
-      // });
+    // const formattedLateness = new Date(task.Lateness).toLocaleTimeString("en-US", {
+    //   hour: "2-digit",
+    //   minute: "2-digit",
+    // });
 
-      // const formattedEndTime = new Date(task.To).toISOString().slice(0, 19).replace('T', ' ');
+    // const formattedEndTime = new Date(task.To).toISOString().slice(0, 19).replace('T', ' ');
 
-      // currant = new Date();
-      // const currantTime = currant.toLocaleTimeString("en-US", {
-      //   hour: "2-digit",
-      //   minute: "2-digit",
-      // });
+    // currant = new Date();
+    // const currantTime = currant.toLocaleTimeString("en-US", {
+    //   hour: "2-digit",
+    //   minute: "2-digit",
+    // });
 
-      const myDate = new Date().getHours() < new Date(task.To).getHours();
-      if (myDate === true) {
-        newRow.style.backgroundColor = "lightgreen";
-      }
-      // console.log( myDate)
-      // console.log(currantTime.split(":")[0]);
+    const myDate = new Date().getHours() < new Date(task.To).getHours();
+    if (myDate === true) {
+      newRow.style.backgroundColor = "lightgreen";
+    }
+    // console.log( myDate)
+    // console.log(currantTime.split(":")[0]);
 
-      const timeVariance =
-        new Date(task.Lateness).getHours() +
-        ":" +
-        new Date(task.Lateness).getMinutes();
-      // console.log(new Date(task.To).getHours().valueOf());
-      // const myDate = new Date(task.To).getHours().valueOf() - new Date().getHours().valueOf();
-      // console.log(new Date(task.To).getHours().valueOf() + " - " + new Date().getHours().valueOf() + " = " + myDate);
-      // if (myDate >= 1) {
-      //   newRow.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
-      // }
+    const timeVariance =
+      new Date(task.Lateness).getHours() +
+      ":" +
+      new Date(task.Lateness).getMinutes();
+    // console.log(new Date(task.To).getHours().valueOf());
+    // const myDate = new Date(task.To).getHours().valueOf() - new Date().getHours().valueOf();
+    // console.log(new Date(task.To).getHours().valueOf() + " - " + new Date().getHours().valueOf() + " = " + myDate);
+    // if (myDate >= 1) {
+    //   newRow.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+    // }
 
-      // function computeTimeVariance(taskEndTime) {
-      //   const currentTime = new Date();
-      //   const endTime = new Date(taskEndTime);
-      //   let timeDifference = new Date(endTime - currentTime);
+    // function computeTimeVariance(taskEndTime) {
+    //   const currentTime = new Date();
+    //   const endTime = new Date(taskEndTime);
+    //   let timeDifference = new Date(endTime - currentTime);
 
-      //   let sign = '';
-      //   if (timeDifference < 0) {
-      //     sign = '-';
-      //     timeDifference.setSeconds(timeDifference.getSeconds() * -1);
-      //   }
+    //   let sign = '';
+    //   if (timeDifference < 0) {
+    //     sign = '-';
+    //     timeDifference.setSeconds(timeDifference.getSeconds() * -1);
+    //   }
 
-      //   let hours = timeDifference.getUTCHours() % 12 || 12;
-      //   const minutes = timeDifference.getUTCMinutes().toString().padStart(2, '0');
-      //   const seconds = timeDifference.getUTCSeconds().toString().padStart(2, '0');
+    //   let hours = timeDifference.getUTCHours() % 12 || 12;
+    //   const minutes = timeDifference.getUTCMinutes().toString().padStart(2, '0');
+    //   const seconds = timeDifference.getUTCSeconds().toString().padStart(2, '0');
 
-      //   hours = hours.toString().padStart(2, '0');
+    //   hours = hours.toString().padStart(2, '0');
 
-      //   return `${sign}${hours}:${minutes}:${seconds} `;
-      // }
+    //   return `${sign}${hours}:${minutes}:${seconds} `;
+    // }
 
-      // const taskEndTime = '09:00:00'; // 9:00:00 PM
-      // const timeVariance = computeTimeVariance(taskEndTime);
-      // console.log(timeVariance);
+    // const taskEndTime = '09:00:00'; // 9:00:00 PM
+    // const timeVariance = computeTimeVariance(taskEndTime);
+    // console.log(timeVariance);
 
-      const userr = localStorage.getItem("myCode");
+    const userr = localStorage.getItem("myCode");
 
-      newRow.innerHTML = `
+    newRow.innerHTML = `
 
         <td class="text-center align-middle d-flex align-items-center">
         <div style="font-size: 14px;" class="fw-bold mx-1">
@@ -206,63 +247,58 @@ async function displayTasks() {
 
       `;
 
-      let reportBtn = newRow.querySelector("#reportBtn");
+    let reportBtn = newRow.querySelector("#reportBtn");
 
-      const myDate2 = new Date().getHours() < new Date(task.From).getHours();
-      if (myDate2 === true) {
-        reportBtn.style.display = "none";
-      }
+    const myDate2 = new Date().getHours() < new Date(task.From).getHours();
+    if (myDate2 === true) {
+      reportBtn.style.display = "none";
+    }
 
-      let follow = newRow.querySelector(".follow");
-      let notDone = newRow.querySelector(".notDone");
-      let done = newRow.querySelector(".done");
-      // console.log(follow);
+    let follow = newRow.querySelector(".follow");
+    let notDone = newRow.querySelector(".notDone");
+    let done = newRow.querySelector(".done");
+    // console.log(follow);
 
-      let frmTaskReport = document.querySelector("#frmTaskReport");
-      // console.log(frmTaskReport);
+    let frmTaskReport = document.querySelector("#frmTaskReport");
+    // console.log(frmTaskReport);
 
-      let selectStatus = newRow.querySelector("#selectStatus");
-      let Range = newRow.querySelector(".Range");
+    let selectStatus = newRow.querySelector("#selectStatus");
+    let Range = newRow.querySelector(".Range");
 
-      // console.log(reportBtn.childNodes[1]);
-      // let iconReport = reportBtn.childNodes[1];
-      let reportSubmitBtn = newRow.querySelector(".reportSubmitBtn");
+    // console.log(reportBtn.childNodes[1]);
+    // let iconReport = reportBtn.childNodes[1];
+    let reportSubmitBtn = newRow.querySelector(".reportSubmitBtn");
 
-      const iconsInRow = newRow.querySelectorAll(".qrIcon");
+    const iconsInRow = newRow.querySelectorAll(".qrIcon");
 
-    
+    // if (reportBtn.classList.contains("btn-warning")) {
+    //   follow.classList.remove("d-block");
+    //   notDone.classList.add("d-block");
+    // }
 
-      // if (reportBtn.classList.contains("btn-warning")) {
-      //   follow.classList.remove("d-block");
-      //   notDone.classList.add("d-block");
-      // }
+    // if (reportBtn.classList.contains('btn-warning')) {
+    // }
 
-      
+    // console.log(Range);
 
-      // if (reportBtn.classList.contains('btn-warning')) {
-      // }
+    //   reportSubmitBtn.addEventListener("click", async () => {
+    //     // Simulate AJAX request success
+    //     for (let i = 0; i < tableBody.childNodes.length; i++) {
+    //       tableBody.childNodes[i].style.color = "green";
+    //     }
+    //   });
 
-      // console.log(Range);
-      
-
-      //   reportSubmitBtn.addEventListener("click", async () => {
-      //     // Simulate AJAX request success
-      //     for (let i = 0; i < tableBody.childNodes.length; i++) {
-      //       tableBody.childNodes[i].style.color = "green";
-      //     }
-      //   });
-
-      tableBody.appendChild(newRow);
-    
+    tableBody.appendChild(newRow);
   }
-
-
 
   // Hide the loading overlay once the requests are processed
   hide();
 }
 
-displayTasks();
+// displayTasks();
+
+//filter department
+const dropdownDepartment = document.querySelector(".dropdownDepartment");
 
 window.addEventListener("load", function () {
   if (
